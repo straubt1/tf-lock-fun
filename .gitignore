@@ -35,3 +35,7 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+secrets/
+.terraform.lock.hcl
+agent/
+scenario1/
