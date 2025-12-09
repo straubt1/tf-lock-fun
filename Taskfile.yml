@@ -4,6 +4,7 @@ dotenv: ['.env', 'secrets/.env']
 
 vars:
   VERSION: 3.7.2
+  ORGANIZATION: terraform-tom
   GPG_THUMBPRINT: AFC1C107266559F0
 tasks:
   pr:delete:
@@ -14,7 +15,7 @@ tasks:
     dir: provider/
     cmds:
       - |
-        tfx admin gpg create -n {{.ORGANIZATION}} --public-key terraform-provider-random_3.7.2_SHA256SUMS.asc
+        tfx admin gpg create -n {{.ORGANIZATION}} --public-key terraform-registry-public-key.asc
   pr:create:
     desc: Create the Provider
     cmd: tfx registry provider create -n random
