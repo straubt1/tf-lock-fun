@@ -1,0 +1,54 @@
+version: '3'
+
+dotenv: ['.env', 'secrets/.env']
+
+vars:
+  VERSION: 3.7.2
+  GPG_THUMBPRINT: AFC1C107266559F0
+tasks:
+  pr:delete:
+    desc: Remove Provider Version
+    cmd: tfx registry provider version delete -n random -v {{.VERSION}}
+  pr:upload-gpg-key:
+    desc: Upload public GPG key to the Private registry
+    dir: provider/
+    cmds:
+      - |
+        tfx admin gpg create -n {{.ORGANIZATION}} --public-key terraform-provider-random_3.7.2_SHA256SUMS.asc
+  pr:create:
+    desc: Create the Provider
+    cmd: tfx registry provider create -n random
+  pr:create:select:
+    desc: Create Provider Version with SHA256SUMS just for Linux/Darwin Platforms
+    dir: provider/
+    cmds:
+      - |
+        tfx registry provider version create -n random \
+          -v "3.7.2" \
+          --key-id "{{.GPG_THUMBPRINT}}" \
+          --shasums "terraform-provider-random_{{.VERSION}}_SHA256SUMS-select" \
+          --shasums-sig "terraform-provider-random_{{.VERSION}}_SHA256SUMS-select.sig"
+  pr:create:all:
+    desc: Create Provider Version with SHA256SUMS for all Platforms
+    dir: provider/
+    cmds:
+      - |
+        tfx registry provider version create -n random \
+          -v "3.7.2" \
+          --key-id "{{.GPG_THUMBPRINT}}" \
+          --shasums "terraform-provider-random_{{.VERSION}}_SHA256SUMS-all" \
+          --shasums-sig "terraform-provider-random_{{.VERSION}}_SHA256SUMS-all.sig"
+  pr:binaries:
+    desc: Create Provider Version with SHA256SUMS for all Platforms
+    dir: provider/
+    cmds:
+      - |
+        tfx registry provider version platform create -n random \
+          -v {{.VERSION}} \
+          --os darwin --arch arm64 \
+          -f terraform-provider-random_{{.VERSION}}_darwin_arm64.zip
+
+        tfx registry provider version platform create -n random \
+          -v {{.VERSION}} \
+          --os linux --arch amd64 \
+          -f terraform-provider-random_{{.VERSION}}_linux_amd64.zip
